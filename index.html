@@ -162,13 +162,15 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow);
     overflow: hidden;
   }
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--border); }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--border); }
   .step {
     border: none; background: none; cursor: pointer; text-align: left;
     padding: 12px 14px 11px; border-bottom: 2px solid transparent;
     display: flex; flex-direction: column; gap: 1px;
   }
   .step + .step { border-left: 1px solid var(--border); }
+  .step { min-width: 0; overflow: hidden; }
+  .step-n, .step-t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .step-n { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
   .step-n b {
     width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center;
@@ -410,12 +412,55 @@
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  /* ── Dynamic capture ── */
+  .dyn-intro { font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
+  .dyn-tips { font-size: 12px; color: var(--muted); padding-left: 18px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 3px; }
+  .dyn-sum .row { display: flex; justify-content: space-between; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .dyn-sum .row:last-child { border-bottom: none; }
+  .dyn-sum .row b { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .dyn-dlg { width: min(1240px, calc(100vw - 24px)); }
+  .dyn-body { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(270px, 1fr); gap: 18px; padding: 16px 18px; max-height: calc(100vh - 160px); overflow-y: auto; }
+  .dyn-stage { position: relative; background: #0b0c0c; border-radius: 10px; overflow: hidden; aspect-ratio: 16 / 9; display: grid; place-items: center; }
+  .dyn-stage video, .dyn-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .dyn-stage canvas.measuring { cursor: crosshair; }
+  .dyn-empty { color: #a5aba5; text-align: center; padding: 24px; font-size: 13px; position: relative; z-index: 1; max-width: 420px; }
+  .dyn-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .dyn-scrub { flex: 1; min-width: 120px; accent-color: var(--accent); }
+  .dyn-status { font-size: 12px; color: var(--muted); }
+  .dyn-side h4 { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .live-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+  .live-cell { border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
+  .live-cell span { display: block; font-size: 11px; color: var(--muted); }
+  .live-cell b { font-size: 20px; font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+  .dyn-results .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .dyn-results .row b { font-family: 'JetBrains Mono', monospace; font-weight: 500; white-space: nowrap; }
+  .dyn-results .none { font-size: 13px; color: var(--muted); padding: 4px 0 8px; }
+  .tag { font-size: 10px; font-weight: 600; color: var(--warn); background: var(--warn-soft); border-radius: 4px; padding: 1px 5px; margin-left: 6px; font-family: 'Inter', sans-serif; }
+  .progress { height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; margin-top: 10px; }
+  .progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  .manual-box { border: 1px dashed var(--border-strong); border-radius: 10px; padding: 12px; margin-top: 16px; }
+  .manual-box .field { margin-bottom: 8px; }
+
+  /* Dynamic report section */
+  .dyn-report { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .snaps { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .snap { border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; margin: 0; break-inside: avoid; }
+  .snap img { width: 100%; display: block; background: #111; }
+  .snap figcaption { font-size: 11px; color: var(--ink-3); padding: 6px 8px; }
+  .snap-empty { display: grid; place-items: center; aspect-ratio: 16 / 9; background: var(--tint); color: var(--ink-3); font-size: 11px; }
+  .trace { margin-top: 12px; border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px 6px; }
+  .trace-title { font-size: 12px; font-weight: 600; color: var(--ink); display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .trace-title span { font-weight: 400; color: var(--ink-3); }
+  .trace svg { width: 100%; height: auto; display: block; margin-top: 6px; overflow: visible; }
+  .src-tag { font-size: 10px; font-weight: 600; color: var(--ink-3); background: #eef0ec; border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
+
   /* ── Responsive ── */
   @media (max-width: 1280px) {
-    .analysis { grid-template-columns: 1fr; }
+    .analysis, .dyn-report { grid-template-columns: 1fr; }
     .glance { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 1000px) {
+    .dyn-body { grid-template-columns: 1fr; max-height: none; }
     .layout { grid-template-columns: 1fr; padding: 12px; gap: 14px; }
     .sidebar { position: static; max-height: none; }
     .panel { overflow: visible; }
@@ -438,7 +483,9 @@
     .coords th:nth-child(2), .coords td:nth-child(2) { display: none; }
     .coords td, .coords th { padding-left: 6px; padding-right: 6px; }
     .cell-input { width: 64px; }
-    .step { padding: 10px 10px 9px; }
+    .step { padding: 9px 6px 8px; }
+    .step-n { font-size: 9px; letter-spacing: .02em; gap: 4px; }
+    .step-n b { width: 14px; height: 14px; font-size: 9px; }
   }
 
   /* ── Print: report only, A4 ── */
@@ -462,6 +509,8 @@
     .size-big { min-width: 48px; height: 48px; font-size: 22px; }
     .tile-v { font-size: 20px; }
     .analysis { grid-template-columns: 1.3fr 1fr; gap: 18px; }
+    .dyn-report { grid-template-columns: 1.25fr 1fr; gap: 18px; }
+    .snap, .trace { break-inside: avoid; }
     .equip { grid-template-columns: repeat(3, 1fr); }
     .followup { grid-template-columns: 1.4fr 1fr; }
     .appendix { grid-template-columns: 1fr 1fr; }
@@ -483,6 +532,12 @@
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7 4h3v16H7zM14 4h3v16h-3z"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></symbol>
+  <symbol id="i-film" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 3v18M17 3v18M2 8h5M2 16h5M17 8h5M17 16h5M2 12h20"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
   <symbol id="i-up" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></symbol>
 </svg>
 
@@ -524,7 +579,10 @@
         <span class="step-n"><b>2</b>Assessment</span><span class="step-t">Body</span>
       </button>
       <button type="button" class="step" role="tab" data-step="3" aria-selected="false" onclick="goStep(3)">
-        <span class="step-n"><b>3</b>Pre-fit</span><span class="step-t">Current bike</span>
+        <span class="step-n"><b>3</b>Pre-fit</span><span class="step-t">Bike</span>
+      </button>
+      <button type="button" class="step" role="tab" data-step="4" aria-selected="false" onclick="goStep(4)">
+        <span class="step-n"><b>4</b>Dynamic</span><span class="step-t">Video</span>
       </button>
     </div>
 
@@ -759,6 +817,27 @@
       </div>
       <div class="panel-nav">
         <button type="button" class="btn ghost" onclick="goStep(2)">← Back</button>
+        <button type="button" class="btn" onclick="goStep(4)">Next: Dynamic →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: DYNAMIC -->
+    <div class="panel" data-panel="4" hidden>
+      <div class="form-section">
+        <div class="section-title">Dynamic analysis <span class="opt">Optional</span></div>
+        <p class="dyn-intro">Measure the rider's joint angles while pedalling, from a side-view video or a live camera.</p>
+        <ul class="dyn-tips">
+          <li>Bike on a trainer, filmed from the side the rider is facing</li>
+          <li>Camera level with the hip, 3–4 m away, whole bike in frame</li>
+          <li>15–20 s at a steady, normal cadence</li>
+          <li>Tight clothing and good light help the tracking</li>
+        </ul>
+        <button type="button" class="btn primary" style="width:100%" onclick="openDynamic()"><svg class="i"><use href="#i-camera"/></svg>Open video capture</button>
+        <span class="hint" style="font-size:12px;color:var(--muted);display:block;margin:8px 0 12px">Video is processed on this device and never uploaded. Only the angles and two still frames are kept.</span>
+      </div>
+      <div class="form-section dyn-sum" id="dynSummary"></div>
+      <div class="panel-nav">
+        <button type="button" class="btn ghost" onclick="goStep(3)">← Back</button>
         <button type="button" class="btn primary" id="reviewBtn" onclick="document.getElementById('report').scrollIntoView({behavior:'smooth'})">Review report</button>
       </div>
     </div>
@@ -831,6 +910,18 @@
             </div>
           </section>
 
+          <!-- Dynamic -->
+          <section class="doc-section" id="dynSection" hidden>
+            <div class="doc-h"><span class="n">03</span><h2>Dynamic analysis</h2><p id="dynMeta"></p></div>
+            <div class="dyn-report">
+              <div>
+                <div class="snaps" id="dynSnaps"></div>
+                <div class="trace" id="dynTrace" hidden></div>
+              </div>
+              <div class="angles" id="dynAngles"></div>
+            </div>
+          </section>
+
           <!-- 03 -->
           <section class="doc-section">
             <div class="doc-h"><span class="n">03</span><h2>Fit coordinates</h2><p>Recommended values can be fine-tuned — dependent targets update</p></div>
@@ -890,6 +981,65 @@
   </section>
 </main>
 
+<!-- Dynamic capture -->
+<dialog id="dynDlg" class="dyn-dlg" aria-labelledby="dynTitle">
+  <div class="dlg-head">
+    <h3 id="dynTitle">Dynamic analysis</h3>
+    <button type="button" class="btn icon ghost" onclick="closeDynamic()" aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="dyn-body">
+    <div>
+      <div class="dyn-stage">
+        <div class="dyn-empty" id="dynEmpty">Use the camera or upload a side-view video of the rider pedalling on a trainer.</div>
+        <video id="dynVideo" playsinline muted preload="auto"></video>
+        <canvas id="dynCanvas" aria-label="Video with tracked joints"></canvas>
+      </div>
+      <div class="dyn-bar">
+        <button type="button" class="btn" onclick="startCamera()"><svg class="i"><use href="#i-camera"/></svg>Camera</button>
+        <button type="button" class="btn" onclick="$('dynFile').click()"><svg class="i"><use href="#i-film"/></svg>Upload video</button>
+        <input type="file" id="dynFile" accept="video/*" hidden>
+        <span class="divider-v"></span>
+        <button type="button" class="btn icon" id="dynBack" onclick="stepFrame(-1)" disabled aria-label="Previous frame"><svg class="i"><use href="#i-prev"/></svg></button>
+        <button type="button" class="btn icon" id="dynPlay" onclick="togglePlay()" disabled aria-label="Play or pause"><svg class="i"><use href="#i-play"/></svg></button>
+        <button type="button" class="btn icon" id="dynFwd" onclick="stepFrame(1)" disabled aria-label="Next frame"><svg class="i"><use href="#i-next"/></svg></button>
+        <input type="range" class="dyn-scrub" id="dynScrub" min="0" max="1000" value="0" disabled aria-label="Video position">
+      </div>
+      <div class="dyn-bar">
+        <button type="button" class="btn primary" id="dynAnalyze" onclick="runAnalysis()" disabled>Analyse automatically</button>
+        <span class="dyn-status" id="dynStatus" role="status"></span>
+      </div>
+      <div class="progress" id="dynProgress" hidden><i></i></div>
+    </div>
+    <div class="dyn-side">
+      <h4>Live angles</h4>
+      <div class="live-grid">
+        <div class="live-cell"><span>Knee</span><b id="live-knee">—</b></div>
+        <div class="live-cell"><span>Hip</span><b id="live-hip">—</b></div>
+        <div class="live-cell"><span>Torso</span><b id="live-torso">—</b></div>
+        <div class="live-cell"><span>Elbow</span><b id="live-elbow">—</b></div>
+      </div>
+      <h4>Results</h4>
+      <div class="dyn-results" id="dynResults"></div>
+      <div class="manual-box">
+        <h4>Manual goniometer</h4>
+        <div class="field">
+          <select id="manMetric" aria-label="Angle to measure manually"></select>
+        </div>
+        <span class="hint" id="manHint" style="display:block;font-size:12px;color:var(--muted);margin-bottom:10px"></span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn sm" onclick="manualReset()">Reset points</button>
+          <button type="button" class="btn sm primary" id="manSave" onclick="manualSave()" disabled>Save <span id="manVal"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dlg-foot">
+    <span style="margin-right:auto;font-size:12px;color:var(--muted);align-self:center">Processed on this device — nothing is uploaded.</span>
+    <button type="button" class="btn" onclick="closeDynamic()">Cancel</button>
+    <button type="button" class="btn primary" id="dynUse" onclick="useDynamic()" disabled>Add to report</button>
+  </div>
+</dialog>
+
 <!-- Saved clients -->
 <dialog id="sessionsDlg" aria-labelledby="sessTitle">
   <div class="dlg-head">
@@ -918,6 +1068,7 @@ const state = {
   body: null,     // body measurements in cm
   ov: {},         // user overrides, all lengths in mm
   session: null,  // { id, created }
+  dynamic: null,  // measured dynamic angles { metrics, manual, cycles, cadence, series, peaks, valleys, snaps, … }
   step: 1
 };
 
@@ -1001,9 +1152,11 @@ function updateSteps() {
   const done = {
     1: has('riderName'),
     2: ['inseam', 'torso', 'arm'].every(has),
-    3: ['curSaddleHeight', 'curSetback', 'curReachToBar', 'curDrop', 'curStack', 'curReach', 'bikeModel'].some(has)
+    3: ['curSaddleHeight', 'curSetback', 'curReachToBar', 'curDrop', 'curStack', 'curReach', 'bikeModel'].some(has),
+    4: !!state.dynamic
   };
   document.querySelectorAll('.step').forEach(s => s.classList.toggle('done', done[s.dataset.step]));
+  if ($('dynSummary')) refreshDynSummary();
 }
 
 function resetOverrides() {
@@ -1066,6 +1219,7 @@ function collect() {
     ov: state.ov,
     exact: { ...exact },
     complaints: [...document.querySelectorAll('#complaints input:checked')].map(c => c.value),
+    dynamic: state.dynamic,
     fields
   };
 }
@@ -1089,6 +1243,7 @@ function restore(d) {
   if (d.ov && typeof d.ov === 'object') {
     Object.entries(d.ov).forEach(([k, v]) => { if (typeof v === 'number' && isFinite(v)) state.ov[k] = v; });
   }
+  state.dynamic = sanitizeDynamic(d.dynamic);
   calculate();
   goStep(1);
 }
@@ -1176,6 +1331,7 @@ function newSession(skipConfirm) {
   $('studio').value = keep.studio;
   Object.keys(exact).forEach(k => exact[k] = null);
   state.ov = {};
+  state.dynamic = null;
   state.session = { id: newId(), created: new Date().toISOString() };
   goStep(1);
   calculate();
@@ -1585,6 +1741,8 @@ function refresh() {
 
   // 01 Summary tiles
   const kneeOk = K.kneeFlex >= 30 && K.kneeFlex <= 40;
+  const D = dynValues();
+  const dynKneeOk = D.kneeBDC != null && D.kneeBDC >= 30 && D.kneeBDC <= 40;
   $('glance').innerHTML = `
     <div class="tile hero">
       <div class="size-big">${esc(r.sizeName)}</div>
@@ -1604,11 +1762,15 @@ function refresh() {
       <div class="tile-v num">${toDisp(K.bar.x)} / ${toDisp(K.bar.y)}<span class="u">${u}</span></div>
       <div class="tile-s">Drop ${toDisp(f.saddleToDrop)} · Reach ${toDisp(f.reachToBar)} ${u}</div>
     </div>
-    <div class="tile">
+    ${D.kneeBDC != null ? `<div class="tile">
+      <div class="tile-k">Knee flexion (BDC) · video</div>
+      <div class="tile-v num">${Math.round(D.kneeBDC)}°</div>
+      <div class="tile-s"><span class="status ${dynKneeOk ? 'ok' : 'warn'}">${dynKneeOk ? 'Measured in range' : D.kneeBDC > 40 ? 'Saddle low' : 'Saddle high'}</span></div>
+    </div>` : `<div class="tile">
       <div class="tile-k">Knee flexion (BDC)</div>
       <div class="tile-v num">${K.overExt ? '—' : Math.round(K.kneeFlex) + '°'}</div>
       <div class="tile-s"><span class="status ${K.overExt ? 'bad' : kneeOk ? 'ok' : 'warn'}">${K.overExt ? 'Over-extended' : kneeOk ? 'In target range' : K.kneeFlex > 40 ? 'Saddle may be low' : 'Saddle may be high'}</span></div>
-    </div>`;
+    </div>`}`;
 
   // 02 Angles
   const tr = torsoRange(r);
@@ -1622,17 +1784,7 @@ function refresh() {
       sub: K.overReach ? 'Bar is beyond estimated arm reach' : 'Torso to arm, on the hoods: 70–95°' }
   ];
   if (K.hipClosed != null) metrics.push({ name: 'Hip angle (top of stroke)', v: K.hipClosed, lo: 40, hi: 85, min: 20, max: 110, sub: 'Most closed hip angle — avoid < 40°' });
-  $('angles').innerHTML = metrics.map(m => {
-    const pct = x => Math.max(0, Math.min(100, (x - m.min) / (m.max - m.min) * 100));
-    const inR = !m.bad && m.v >= m.lo && m.v <= m.hi;
-    const status = m.bad ? '<span class="status bad">Check</span>' : inR ? '<span class="status ok">In range</span>'
-      : `<span class="status warn">${m.v < m.lo ? 'Below' : 'Above'} range</span>`;
-    return `<div>
-      <div class="angle-head"><span class="angle-name">${m.name}</span><span class="angle-val num">${m.bad && m.v === 0 ? '—' : Math.round(m.v) + '°'}</span></div>
-      <div class="rangebar"><span class="band" style="left:${pct(m.lo)}%;width:${pct(m.hi) - pct(m.lo)}%"></span><span class="mark${inR ? '' : ' out'}" style="left:${pct(m.v)}%"></span></div>
-      <div class="angle-sub"><span>${m.sub}</span>${status}</div>
-    </div>`;
-  }).join('') + `<p class="method-note">Joint angles are modelled from inseam, torso and arm length using standard segment proportions, with the hip ${90} mm above the sit bones and the foot ${15}° toe-down at the bottom of the stroke. Use them to sanity-check the fit, then confirm dynamically.</p>`;
+  $('angles').innerHTML = metrics.map(rangeHTML).join('') + `<p class="method-note">Joint angles are modelled from inseam, torso and arm length using standard segment proportions, with the hip ${90} mm above the sit bones and the foot ${15}° toe-down at the bottom of the stroke. Use them to sanity-check the fit, then confirm dynamically.</p>`;
 
   // 03 Coordinates
   const pre = id => readField(id);
@@ -1735,6 +1887,19 @@ function refresh() {
   }
   if (K.overExt) finds.push({ icon: '!', warn: true, title: 'Leg over-extension', text: 'The saddle is higher than the estimated leg length allows. Lower it and check for hip rocking.' });
   if (K.overReach) finds.push({ icon: '!', warn: true, title: 'Reach', text: 'The handlebar is beyond the estimated arm reach. Shorten the stem or reduce saddle-to-bar distance.' });
+  if (D.kneeBDC != null) {
+    const mm = saddleDeltaForKnee(f, body, D.kneeBDC);
+    if (dynKneeOk) finds.push({ icon: '✓', title: `Knee extension (video) — ${Math.round(D.kneeBDC)}°`, text: 'Measured knee flexion at the bottom of the stroke is within 30–40°. Saddle height confirmed.' });
+    else finds.push({ icon: '!', warn: true, title: `Knee extension (video) — ${Math.round(D.kneeBDC)}°`,
+      text: `Measured knee flexion at the bottom of the stroke is ${D.kneeBDC > 40 ? 'above' : 'below'} 30–40°. ${mm > 0 ? 'Raise' : 'Lower'} the saddle by about ${toDisp(Math.abs(mm))} ${u}, then film again to confirm.` });
+  }
+  if (D.hipClosed != null && D.hipClosed < 40) finds.push({ icon: '!', warn: true, title: `Hip angle (video) — ${Math.round(D.hipClosed)}°`, text: 'The hip closes below 40° at the top of the stroke. Raise the bar, shorten the reach or consider shorter cranks.' });
+  if (D.elbowFlex != null && D.elbowFlex < 10) finds.push({ icon: '!', warn: true, title: `Elbows (video) — ${Math.round(D.elbowFlex)}° bend`, text: 'Arms are nearly locked. Shorten the reach or raise the bar so the elbows can stay soft.' });
+  if (D.elbowFlex != null && D.elbowFlex > 35) finds.push({ icon: 'i', title: `Elbows (video) — ${Math.round(D.elbowFlex)}° bend`, text: 'Elbows are strongly bent — the reach may be short, unless the rider is deliberately riding low.' });
+  if (D.torso != null) {
+    const [tlo, thi] = torsoRange(r);
+    if (D.torso < tlo || D.torso > thi) finds.push({ icon: 'i', title: `Torso angle (video) — ${Math.round(D.torso)}°`, text: `Outside the ${tlo}–${thi}° typical for the chosen position. ${D.torso > thi ? 'More upright than intended: lower the bar or lengthen reach if comfort allows.' : 'Lower than intended: raise the bar or shorten reach.'}` });
+  }
   r.notes.forEach(n => finds.push(n));
   finds.push({ icon: '→', title: 'Saddle height', text: 'This is a starting point. Fine-tune in 2 mm increments over 2–3 weeks.' });
   const history = $('history').value.trim();
@@ -1772,6 +1937,20 @@ function refresh() {
   ]);
 
   drawDiagram(f, K, r);
+  renderDynReport(f, body, r);
+  document.querySelectorAll('.doc-section:not([hidden]) .doc-h .n').forEach((n, i) => n.textContent = String(i + 1).padStart(2, '0'));
+}
+
+function rangeHTML(m) {
+  const pct = x => Math.max(0, Math.min(100, (x - m.min) / (m.max - m.min) * 100));
+  const inR = !m.bad && m.v >= m.lo && m.v <= m.hi;
+  const status = m.bad ? '<span class="status bad">Check</span>' : inR ? '<span class="status ok">In range</span>'
+    : `<span class="status warn">${m.v < m.lo ? 'Below' : 'Above'} range</span>`;
+  return `<div>
+    <div class="angle-head"><span class="angle-name">${m.name}${m.tag ? `<span class="src-tag">${m.tag}</span>` : ''}</span><span class="angle-val num">${m.bad && m.v === 0 ? '—' : Math.round(m.v) + '°'}</span></div>
+    <div class="rangebar"><span class="band" style="left:${pct(m.lo)}%;width:${pct(m.hi) - pct(m.lo)}%"></span><span class="mark${inR ? '' : ' out'}" style="left:${pct(m.v)}%"></span></div>
+    <div class="angle-sub"><span>${m.sub}</span>${status}</div>
+  </div>`;
 }
 
 // ─── Diagram ───
@@ -1877,6 +2056,656 @@ function drawDiagram(f, K, r) {
   </svg>`;
 }
 
+// ─── Dynamic analysis (video pose tracking) ───
+const MP_BASE = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+const POSE_MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task';
+const LM = {
+  left:  { shoulder: 11, elbow: 13, wrist: 15, hip: 23, knee: 25, ankle: 27, heel: 29, toe: 31 },
+  right: { shoulder: 12, elbow: 14, wrist: 16, hip: 24, knee: 26, ankle: 28, heel: 30, toe: 32 }
+};
+// pts: landmarks clicked for the manual goniometer, in order
+const DYN_METRICS = {
+  kneeBDC:   { label: 'Knee flexion — bottom', pts: ['hip', 'knee', 'ankle'], flex: true, lo: 30, hi: 40, min: 15, max: 55, sub: 'Target 30–40° at the bottom of the stroke' },
+  kneeTDC:   { label: 'Knee flexion — top', pts: ['hip', 'knee', 'ankle'], flex: true, lo: 100, hi: 115, min: 80, max: 135, sub: 'Typical 100–115° at the top of the stroke' },
+  hipClosed: { label: 'Hip angle — most closed', pts: ['shoulder', 'hip', 'knee'], lo: 40, hi: 85, min: 20, max: 110, sub: 'Torso to thigh at the top — avoid < 40°' },
+  torso:     { label: 'Torso angle', pts: ['hip', 'shoulder'], horiz: true, min: 20, max: 75 },
+  shoulder:  { label: 'Shoulder angle', pts: ['hip', 'shoulder', 'wrist'], lo: 70, hi: 95, min: 50, max: 115, sub: 'Torso to arm: 70–95°' },
+  elbowFlex: { label: 'Elbow flexion', pts: ['shoulder', 'elbow', 'wrist'], flex: true, lo: 10, hi: 30, min: 0, max: 50, sub: 'Soft elbows: 10–30° bend' },
+  ankleROM:  { label: 'Ankle range of motion', auto: true, lo: 15, hi: 35, min: 0, max: 50, sub: 'Ankling through the stroke: 15–35°' }
+};
+
+const dyn = {
+  landmarker: null, loading: null, source: null, stream: null, rafId: 0,
+  running: false, recordEnd: 0, lastT: -1, last: null,
+  samples: [], snaps: { bdc: [], tdc: [] },
+  lockSide: null, votes: 0, pre: [], ring: [], ringM: [], ringIdx: [],
+  result: null, manual: {}, manualSnaps: {}, points: []
+};
+
+const median = a => { const b = [...a].sort((x, y) => x - y), m = b.length >> 1; return b.length ? (b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2) : null; };
+const r1 = v => v == null ? null : Math.round(v * 10) / 10;
+
+function dynValues() {
+  const d = state.dynamic, out = {};
+  Object.keys(DYN_METRICS).forEach(k => {
+    const v = d ? (d.manual && d.manual[k] != null ? d.manual[k] : d.metrics ? d.metrics[k] : null) : null;
+    out[k] = typeof v === 'number' && isFinite(v) ? v : null;
+  });
+  return out;
+}
+
+// Saddle change (mm) that would bring a measured knee flexion to 35°, using the rider model's sensitivity
+function saddleDeltaForKnee(f, body, measured) {
+  const at = sh => riderModel({ ...f, saddleHeight: sh }, body).kneeFlex;
+  let slope = (at(f.saddleHeight + 5) - at(f.saddleHeight - 5)) / 10;
+  if (!(slope < -0.1)) slope = -0.45; // ≈ 0.45° per mm when the model can't tell
+  return Math.max(-30, Math.min(30, (35 - measured) / slope));
+}
+
+function sanitizeDynamic(x) {
+  if (!x || typeof x !== 'object') return null;
+  const num = v => typeof v === 'number' && isFinite(v) ? v : null;
+  const pts = a => Array.isArray(a) ? a.filter(p => Array.isArray(p) && p.length === 2 && p.every(n => typeof n === 'number' && isFinite(n))).slice(0, 2000) : [];
+  const out = {
+    date: typeof x.date === 'string' ? x.date.slice(0, 40) : null,
+    source: x.source === 'camera' ? 'camera' : 'video',
+    side: x.side === 'right' ? 'right' : 'left',
+    cycles: num(x.cycles), cadence: num(x.cadence),
+    metrics: {}, manual: {}, snaps: {},
+    series: pts(x.series), peaks: pts(x.peaks), valleys: pts(x.valleys)
+  };
+  Object.keys(DYN_METRICS).forEach(k => {
+    out.metrics[k] = num(x.metrics && x.metrics[k]);
+    const m = num(x.manual && x.manual[k]);
+    if (m != null) out.manual[k] = m;
+  });
+  ['bdc', 'tdc'].forEach(k => {
+    const u = x.snaps && x.snaps[k];
+    if (typeof u === 'string' && /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(u)) out.snaps[k] = u;
+  });
+  const any = Object.values(out.metrics).some(v => v != null) || Object.keys(out.manual).length;
+  return any ? out : null;
+}
+
+// ── Pure analysis: samples [{ t (s), knee, hip, torso, shoulder, elbow, ankle, side }] → metrics ──
+function smooth(a, w) {
+  return a.map((_, i) => {
+    let sum = 0, n = 0;
+    for (let j = Math.max(0, i - w); j <= Math.min(a.length - 1, i + w); j++) { sum += a[j]; n++; }
+    return sum / n;
+  });
+}
+
+function zigzag(a, th) { // turning points that move at least `th` in the opposite direction
+  const peaks = [], valleys = [];
+  let hi = 0, lo = 0, trend = 0;
+  for (let i = 1; i < a.length; i++) {
+    if (trend !== -1 && a[i] > a[hi]) hi = i;
+    if (trend !== 1 && a[i] < a[lo]) lo = i;
+    if (trend !== -1 && a[hi] - a[i] >= th) { peaks.push(hi); trend = -1; lo = i; }
+    else if (trend !== 1 && a[i] - a[lo] >= th) { valleys.push(lo); trend = 1; hi = i; }
+  }
+  return { peaks, valleys };
+}
+
+function analyzeDynamic(samples) {
+  // Drop tracking glitches: the knee can't move > 30° between consecutive frames while pedalling
+  const S = [];
+  samples.filter(s => isFinite(s.knee) && isFinite(s.t)).sort((a, b) => a.t - b.t).forEach(s => {
+    const prev = S[S.length - 1];
+    if (prev && s.t - prev.t < 0.07 && Math.abs(s.knee - prev.knee) > 30) return;
+    S.push(s);
+  });
+  if (S.length < 30) return { error: 'Not enough tracked frames — make sure the whole rider is visible from the side.' };
+  const knee = smooth(S.map(s => s.knee), 2);
+  const { peaks, valleys } = zigzag(knee, 20);
+  if (peaks.length < 3 || valleys.length < 3) return { error: 'Could not find 3 full pedal strokes. Film longer at a steady cadence with the leg clearly visible.' };
+  const near = (i, key, fn, w = 2) => {
+    let best = S[i][key];
+    for (let j = Math.max(0, i - w); j <= Math.min(S.length - 1, i + w); j++) if (isFinite(S[j][key])) best = fn(best, S[j][key]);
+    return best;
+  };
+  const fin = key => S.map(s => s[key]).filter(isFinite);
+  const roms = [];
+  for (let k = 1; k < peaks.length; k++) {
+    const seg = S.slice(peaks[k - 1], peaks[k] + 1).map(s => s.ankle).filter(isFinite);
+    if (seg.length > 3) roms.push(Math.max(...seg) - Math.min(...seg));
+  }
+  const periods = peaks.slice(1).map((p, k) => S[p].t - S[peaks[k]].t).filter(d => d > 0);
+  const t0 = S[0].t, step = Math.max(1, Math.ceil(S.length / 400));
+  const sides = S.map(s => s.side);
+  return {
+    metrics: {
+      kneeBDC: r1(180 - median(peaks.map(i => near(i, 'knee', Math.max)))),
+      kneeTDC: r1(180 - median(valleys.map(i => near(i, 'knee', Math.min)))),
+      hipClosed: r1(median(valleys.map(i => near(i, 'hip', Math.min, 3)))),
+      torso: r1(median(fin('torso'))),
+      shoulder: r1(median(fin('shoulder'))),
+      elbowFlex: fin('elbow').length ? r1(180 - median(fin('elbow'))) : null,
+      ankleROM: roms.length ? r1(median(roms)) : null
+    },
+    cycles: peaks.length,
+    cadence: periods.length ? Math.round(60 / median(periods)) : null,
+    side: sides.filter(x => x === 'right').length > sides.length / 2 ? 'right' : 'left',
+    series: S.filter((_, i) => i % step === 0).map(s => [+(s.t - t0).toFixed(3), r1(s.knee)]),
+    peaks: peaks.map(i => [+(S[i].t - t0).toFixed(3), r1(S[i].knee)]),
+    valleys: valleys.map(i => [+(S[i].t - t0).toFixed(3), r1(S[i].knee)])
+  };
+}
+
+// ── Pose model ──
+async function loadPose() {
+  if (dyn.landmarker) return dyn.landmarker;
+  if (!dyn.loading) dyn.loading = (async () => {
+    const vision = await import(`${MP_BASE}/vision_bundle.mjs`);
+    const files = await vision.FilesetResolver.forVisionTasks(`${MP_BASE}/wasm`);
+    const make = delegate => vision.PoseLandmarker.createFromOptions(files, {
+      baseOptions: { modelAssetPath: POSE_MODEL, delegate }, runningMode: 'VIDEO', numPoses: 1
+    });
+    try { return await make('GPU'); } catch (e) { return await make('CPU'); }
+  })();
+  try { dyn.landmarker = await dyn.loading; }
+  catch (e) { dyn.loading = null; throw e; }
+  return dyn.landmarker;
+}
+
+function ensurePose() {
+  if (dyn.landmarker) return Promise.resolve(dyn.landmarker);
+  setDynStatus('Loading pose-tracking model…');
+  return loadPose().then(lm => { setDynStatus('Pose tracking ready.'); processFrame(true); return lm; }, err => {
+    setDynStatus('Automatic tracking unavailable (offline?). You can still measure with the manual goniometer.');
+    throw err;
+  });
+}
+
+// Mean depth of a side's main joints; the side nearest the camera has the smaller z
+const sideDepth = (lm, side) => ['shoulder', 'hip', 'knee', 'ankle'].reduce((a, k) => a + (lm[LM[side][k]].z || 0), 0) / 4;
+
+function measureFrame(lm, W, H, side) {
+  if (!side) {
+    const vis = sd => ['shoulder', 'hip', 'knee', 'ankle', 'toe'].reduce((a, k) => a + (lm[LM[sd][k]].visibility ?? 1), 0);
+    const dz = sideDepth(lm, 'left') - sideDepth(lm, 'right');
+    side = Math.abs(dz) > 1e-6 ? (dz < 0 ? 'left' : 'right') : vis('left') >= vis('right') ? 'left' : 'right';
+  }
+  const P = {};
+  Object.entries(LM[side]).forEach(([k, i]) => { P[k] = { x: lm[i].x * W, y: lm[i].y * H, v: lm[i].visibility ?? 1 }; });
+  const ok = ['shoulder', 'hip', 'knee', 'ankle'].every(k => P[k].v > 0.5);
+  const armOk = P.elbow.v > 0.4 && P.wrist.v > 0.4;
+  return {
+    side, P, ok,
+    knee: angleAt(P.hip, P.knee, P.ankle),
+    hip: angleAt(P.shoulder, P.hip, P.knee),
+    torso: Math.atan2(P.hip.y - P.shoulder.y, Math.abs(P.shoulder.x - P.hip.x)) * 180 / Math.PI,
+    shoulder: armOk ? angleAt(P.hip, P.shoulder, P.wrist) : NaN,
+    elbow: armOk ? angleAt(P.shoulder, P.elbow, P.wrist) : NaN,
+    ankle: P.toe.v > 0.4 ? angleAt(P.knee, P.ankle, P.toe) : NaN
+  };
+}
+
+// ── Drawing ──
+function drawSkeleton(ctx, m, scale = 1) {
+  const P = m.P, lw = Math.max(2, ctx.canvas.width / 260);
+  const seg = keys => {
+    ctx.beginPath();
+    keys.forEach((k, i) => i ? ctx.lineTo(P[k].x * scale, P[k].y * scale) : ctx.moveTo(P[k].x * scale, P[k].y * scale));
+    ctx.stroke();
+  };
+  ctx.lineCap = ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(200, 240, 74, .95)';
+  ctx.lineWidth = lw;
+  seg(['wrist', 'elbow', 'shoulder', 'hip', 'knee', 'ankle', 'toe']);
+  seg(['ankle', 'heel', 'toe']);
+  ['shoulder', 'elbow', 'wrist', 'hip', 'knee', 'ankle', 'toe'].forEach(k => {
+    ctx.beginPath();
+    ctx.arc(P[k].x * scale, P[k].y * scale, lw * 1.6, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.lineWidth = lw * .6; ctx.strokeStyle = '#14171a'; ctx.stroke();
+  });
+  ctx.font = `600 ${Math.round(lw * 6)}px Inter, sans-serif`;
+  ctx.lineWidth = lw * 1.4; ctx.strokeStyle = 'rgba(0,0,0,.75)'; ctx.fillStyle = '#fff';
+  const tag = (k, v, dx) => {
+    if (!isFinite(v)) return;
+    const t = Math.round(v) + '°', x = P[k].x * scale + dx * lw * 5, y = P[k].y * scale + lw * 2;
+    ctx.strokeText(t, x, y); ctx.fillText(t, x, y);
+  };
+  tag('knee', m.knee, 1); tag('hip', m.hip, -3); tag('elbow', m.elbow, 1);
+}
+
+function drawManual(ctx) {
+  if (!dyn.points.length) return;
+  const lw = Math.max(2, ctx.canvas.width / 260);
+  ctx.strokeStyle = '#ffb020'; ctx.fillStyle = '#ffb020'; ctx.lineWidth = lw;
+  ctx.beginPath();
+  dyn.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+  ctx.stroke();
+  dyn.points.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, lw * 2, 0, Math.PI * 2); ctx.fill(); });
+  const def = DYN_METRICS[$('manMetric').value];
+  if (def && def.horiz && dyn.points.length === 1) {
+    ctx.setLineDash([lw * 3, lw * 3]);
+    ctx.beginPath(); ctx.moveTo(0, dyn.points[0].y); ctx.lineTo(ctx.canvas.width, dyn.points[0].y); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function drawAll() {
+  const v = $('dynVideo'), c = $('dynCanvas');
+  if (!v.videoWidth) return;
+  if (c.width !== v.videoWidth || c.height !== v.videoHeight) { c.width = v.videoWidth; c.height = v.videoHeight; }
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, c.width, c.height);
+  if (dyn.last && dyn.last.ok && !dyn.points.length) drawSkeleton(ctx, dyn.last);
+  drawManual(ctx);
+}
+
+function snapshot(m) { // still frame with overlay, as a small JPEG data URL
+  const v = $('dynVideo');
+  if (!v.videoWidth) return null;
+  const w = Math.min(560, v.videoWidth), scale = w / v.videoWidth;
+  const c = document.createElement('canvas');
+  c.width = w; c.height = Math.round(v.videoHeight * scale);
+  const ctx = c.getContext('2d');
+  ctx.drawImage(v, 0, 0, c.width, c.height);
+  if (m && m.ok) drawSkeleton(ctx, m, scale);
+  if (!m && dyn.points.length) { ctx.save(); ctx.scale(scale, scale); drawManual(ctx); ctx.restore(); }
+  try { return c.toDataURL('image/jpeg', 0.78); } catch (e) { return null; }
+}
+
+function showLive(m) {
+  const put = (id, v) => $(id).textContent = m && m.ok && isFinite(v) ? Math.round(v) + '°' : '—';
+  put('live-knee', m && m.knee); put('live-hip', m && m.hip); put('live-torso', m && m.torso); put('live-elbow', m && m.elbow);
+}
+
+// ── Frame loop ──
+function processFrame(force) {
+  const v = $('dynVideo');
+  if (!dyn.landmarker || v.readyState < 2 || !v.videoWidth) { drawAll(); return; }
+  const vt = dyn.source === 'camera' ? performance.now() / 1000 : v.currentTime;
+  if (!force && vt === dyn.lastT) return;
+  dyn.lastT = vt;
+  let res;
+  try { res = dyn.landmarker.detectForVideo(v, performance.now()); } catch (e) { return; }
+  const lm = res && res.landmarks && res.landmarks[0];
+  dyn.last = lm ? measureFrame(lm, v.videoWidth, v.videoHeight, dyn.running ? dyn.lockSide : null) : null;
+  drawAll();
+  showLive(dyn.last);
+  if (dyn.running) {
+    if (lm) collectFrame(lm, vt);
+    if (dyn.source === 'camera') {
+      $('dynProgress').firstElementChild.style.width = Math.min(100, (1 - (dyn.recordEnd - performance.now()) / 15000) * 100) + '%';
+      if (performance.now() >= dyn.recordEnd) finishAnalysis();
+    }
+  }
+}
+
+// Lock onto the leg nearest the camera (majority over the first 15 frames), then follow only that side
+function collectFrame(lm, t) {
+  const v = $('dynVideo'), W = v.videoWidth, H = v.videoHeight;
+  if (!dyn.lockSide) {
+    dyn.votes += sideDepth(lm, 'left') <= sideDepth(lm, 'right') ? -1 : 1;
+    dyn.pre.push({ t, L: measureFrame(lm, W, H, 'left'), R: measureFrame(lm, W, H, 'right') });
+    if (dyn.pre.length < 15) return;
+    dyn.lockSide = dyn.votes <= 0 ? 'left' : 'right';
+    dyn.pre.forEach(p => pushSample(dyn.lockSide === 'left' ? p.L : p.R, p.t, null));
+    dyn.pre = [];
+    return;
+  }
+  pushSample(measureFrame(lm, W, H, dyn.lockSide), t, v);
+}
+
+const RING = 9; // recent frames kept so BDC/TDC stills come from the exact extreme frame
+
+function pushSample(m, t, v) {
+  const S = dyn.samples;
+  if (!m.ok || (S.length && S[S.length - 1].t === t)) return; // untracked, or same frame seen twice
+  S.push({ t, knee: m.knee, hip: m.hip, torso: m.torso, shoulder: m.shoulder, elbow: m.elbow, ankle: m.ankle, side: m.side });
+  if (!v || !v.videoWidth) return;
+  const n = S.length, slot = (n - 1) % RING;
+  const c = dyn.ring[slot] || (dyn.ring[slot] = document.createElement('canvas'));
+  const w = Math.min(560, v.videoWidth);
+  c.width = w; c.height = Math.round(v.videoHeight * w / v.videoWidth);
+  c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+  dyn.ringM[slot] = m; dyn.ringIdx[slot] = n - 1;
+  if (n < RING) return;
+  const mid = n - 1 - (RING >> 1), ms = mid % RING;
+  if (dyn.ringIdx[ms] !== mid) return;
+  const win = S.slice(n - RING).map(x => x.knee), kv = S[mid].knee;
+  if (kv === Math.max(...win)) addSnap('bdc', kv, ms);
+  else if (kv === Math.min(...win)) addSnap('tdc', kv, ms);
+}
+
+function addSnap(kind, kv, slot) {
+  const src = dyn.ring[slot], c = document.createElement('canvas');
+  c.width = src.width; c.height = src.height;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(src, 0, 0);
+  drawSkeleton(ctx, dyn.ringM[slot], src.width / $('dynVideo').videoWidth);
+  let u;
+  try { u = c.toDataURL('image/jpeg', 0.78); } catch (e) { return; }
+  const list = dyn.snaps[kind];
+  list.push({ v: kv, u });
+  if (list.length > 30) list.shift();
+}
+
+function startLoop() {
+  if (dyn.rafId) return;
+  const tick = () => { dyn.rafId = requestAnimationFrame(tick); processFrame(false); };
+  dyn.rafId = requestAnimationFrame(tick);
+}
+
+function stopDynamic() {
+  dyn.running = false;
+  cancelAnimationFrame(dyn.rafId); dyn.rafId = 0;
+  const v = $('dynVideo');
+  v.pause();
+  if (dyn.stream) { dyn.stream.getTracks().forEach(t => t.stop()); dyn.stream = null; }
+}
+
+function setDynStatus(t) { $('dynStatus').textContent = t; }
+
+function setDynControls() {
+  const has = !!dyn.source, file = dyn.source === 'video';
+  $('dynEmpty').hidden = has;
+  $('dynPlay').disabled = !has;
+  ['dynBack', 'dynFwd', 'dynScrub'].forEach(id => $(id).disabled = !file);
+  $('dynAnalyze').disabled = !has;
+  $('dynAnalyze').textContent = dyn.source === 'camera' ? 'Record 15 s & analyse' : 'Analyse automatically';
+}
+
+// ── Dialog ──
+function openDynamic() {
+  const d = state.dynamic;
+  dyn.result = d ? JSON.parse(JSON.stringify({ ...d, manual: undefined })) : null;
+  dyn.manual = d ? { ...d.manual } : {};
+  dyn.manualSnaps = {};
+  dyn.points = [];
+  renderDynResults();
+  manualReset();
+  setDynControls();
+  $('dynUse').disabled = !dyn.result && !Object.keys(dyn.manual).length;
+  $('dynDlg').showModal();
+  startLoop();
+  if (dyn.source) ensurePose().catch(() => {});
+}
+
+function closeDynamic() { $('dynDlg').close(); }
+
+async function startCamera() {
+  stopDynamic();
+  try {
+    dyn.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+  } catch (e) {
+    setDynStatus('Camera not available — allow camera access, or upload a video instead.');
+    return;
+  }
+  const v = $('dynVideo');
+  v.removeAttribute('src');
+  v.srcObject = dyn.stream;
+  dyn.source = 'camera';
+  setDynControls();
+  try { await v.play(); } catch (e) {}
+  startLoop();
+  ensurePose().catch(() => {});
+}
+
+function loadVideoFile(file) {
+  stopDynamic();
+  const v = $('dynVideo');
+  if (v.src && v.src.startsWith('blob:')) URL.revokeObjectURL(v.src);
+  v.srcObject = null;
+  v.src = URL.createObjectURL(file);
+  dyn.source = 'video';
+  dyn.last = null;
+  setDynControls();
+  setDynStatus('Video loaded. Analyse automatically, or pause on a frame and measure manually.');
+  v.addEventListener('loadeddata', () => { v.currentTime = Math.min(0.05, v.duration || 0); }, { once: true });
+  startLoop();
+  ensurePose().catch(() => {});
+}
+
+function togglePlay() {
+  const v = $('dynVideo');
+  if (v.paused) v.play().catch(() => {}); else v.pause();
+}
+
+function stepFrame(d) {
+  const v = $('dynVideo');
+  v.pause();
+  v.currentTime = Math.max(0, Math.min((v.duration || 0) - 0.001, v.currentTime + d / 30));
+}
+
+async function runAnalysis() {
+  try { await ensurePose(); } catch (e) { return; }
+  const v = $('dynVideo');
+  Object.assign(dyn, { samples: [], snaps: { bdc: [], tdc: [] }, lockSide: null, votes: 0, pre: [], ring: [], ringM: [], ringIdx: [] });
+  dyn.points = [];
+  $('dynProgress').hidden = false;
+  $('dynProgress').firstElementChild.style.width = '0%';
+  $('dynAnalyze').disabled = true;
+  if (dyn.source === 'camera') {
+    if (v.paused) await v.play().catch(() => {});
+    dyn.recordEnd = performance.now() + 15000;
+    dyn.running = true;
+    setDynStatus('Recording 15 s — keep pedalling steadily…');
+  } else {
+    // Step through the video frame by frame, so results don't depend on device speed.
+    // The 'seeked' listener runs pose detection and collects each frame.
+    v.pause();
+    const end = isFinite(v.duration) ? Math.min(v.duration, 40) : 40;
+    dyn.running = true;
+    setDynStatus('Analysing video frame by frame…');
+    for (let t = 0; t <= end && dyn.running; t += 1 / 30) {
+      await seekTo(v, t);
+      if (v.currentTime < t - 0.5) break; // reached the real end of the clip
+      $('dynProgress').firstElementChild.style.width = Math.min(100, t / end * 100) + '%';
+    }
+    finishAnalysis();
+  }
+}
+
+function seekTo(v, t) {
+  return new Promise(res => {
+    const done = () => { clearTimeout(timer); res(); };
+    const timer = setTimeout(done, 3000);
+    v.addEventListener('seeked', done, { once: true });
+    v.currentTime = t;
+  });
+}
+
+function finishAnalysis() {
+  if (!dyn.running) return;
+  dyn.running = false;
+  const v = $('dynVideo');
+  if (dyn.source === 'video') v.pause();
+  $('dynAnalyze').disabled = false;
+  $('dynProgress').hidden = true;
+  const res = analyzeDynamic(dyn.samples);
+  if (res.error) { setDynStatus(res.error); return; }
+  const pick = (list, target) => list.length ? list.reduce((a, b) => Math.abs(b.v - target) < Math.abs(a.v - target) ? b : a).u : null;
+  res.snaps = {
+    bdc: pick(dyn.snaps.bdc, 180 - res.metrics.kneeBDC),
+    tdc: pick(dyn.snaps.tdc, 180 - res.metrics.kneeTDC)
+  };
+  res.date = new Date().toISOString();
+  res.source = dyn.source;
+  dyn.result = res;
+  renderDynResults();
+  $('dynUse').disabled = false;
+  setDynStatus(`Analysed ${res.cycles} pedal strokes${res.cadence ? ` at ${res.cadence} rpm` : ''} (${res.side} side).`);
+}
+
+function renderDynResults() {
+  const R = dyn.result, M = dyn.manual;
+  const rows = Object.entries(DYN_METRICS).map(([k, def]) => {
+    const man = M[k], auto = R && R.metrics ? R.metrics[k] : null, v = man ?? auto;
+    if (v == null) return '';
+    return `<div class="row"><span>${def.label}${man != null ? '<span class="tag">manual</span>' : ''}</span><b>${Math.round(v)}°</b></div>`;
+  }).join('');
+  const meta = R && R.cycles ? `<div class="row"><span>Pedal strokes · cadence</span><b>${R.cycles} · ${R.cadence ?? '—'} rpm</b></div>` : '';
+  $('dynResults').innerHTML = rows || meta ? meta + rows : '<div class="none">No measurements yet.</div>';
+}
+
+// ── Manual goniometer ──
+function manualHint() {
+  const def = DYN_METRICS[$('manMetric').value];
+  const names = { hip: 'hip', knee: 'knee', ankle: 'ankle', shoulder: 'shoulder', elbow: 'elbow', wrist: 'wrist' };
+  return `Pause on the right frame, then click: ${def.pts.map(p => names[p]).join(' → ')}${def.horiz ? ' (angle to horizontal)' : ''}.`;
+}
+
+function manualReset() {
+  dyn.points = [];
+  $('manSave').disabled = true;
+  $('manVal').textContent = '';
+  $('manHint').textContent = manualHint();
+  $('dynCanvas').classList.add('measuring');
+  drawAll();
+}
+
+function manualValue() {
+  const def = DYN_METRICS[$('manMetric').value], P = dyn.points;
+  if (P.length < def.pts.length) return null;
+  if (def.horiz) return Math.atan2(P[0].y - P[1].y, Math.abs(P[1].x - P[0].x)) * 180 / Math.PI;
+  const a = angleAt(P[0], P[1], P[2]);
+  return def.flex ? 180 - a : a;
+}
+
+function manualClick(e) {
+  const v = $('dynVideo'), c = $('dynCanvas');
+  if (!v.videoWidth) return;
+  if (!v.paused) v.pause();
+  const def = DYN_METRICS[$('manMetric').value];
+  if (dyn.points.length >= def.pts.length) dyn.points = [];
+  const rect = c.getBoundingClientRect();
+  const scale = Math.min(rect.width / v.videoWidth, rect.height / v.videoHeight);
+  const ox = (rect.width - v.videoWidth * scale) / 2, oy = (rect.height - v.videoHeight * scale) / 2;
+  const x = (e.clientX - rect.left - ox) / scale, y = (e.clientY - rect.top - oy) / scale;
+  if (x < 0 || y < 0 || x > v.videoWidth || y > v.videoHeight) return;
+  dyn.points.push({ x, y });
+  const val = manualValue();
+  $('manSave').disabled = val == null;
+  $('manVal').textContent = val == null ? '' : `${Math.round(val)}°`;
+  drawAll();
+}
+
+function manualSave() {
+  const k = $('manMetric').value, val = manualValue();
+  if (val == null) return;
+  dyn.manual[k] = r1(val);
+  if (k === 'kneeBDC' || k === 'kneeTDC') {
+    const u = snapshot(null);
+    if (u) dyn.manualSnaps[k === 'kneeBDC' ? 'bdc' : 'tdc'] = u;
+  }
+  manualReset();
+  renderDynResults();
+  $('dynUse').disabled = false;
+  setDynStatus(`${DYN_METRICS[k].label}: ${Math.round(val)}° saved.`);
+}
+
+function useDynamic() {
+  const R = dyn.result || {};
+  const merged = sanitizeDynamic({
+    ...R,
+    date: R.date || new Date().toISOString(),
+    source: R.source || dyn.source,
+    manual: dyn.manual,
+    metrics: R.metrics || {},
+    snaps: { ...(R.snaps || {}), ...dyn.manualSnaps }
+  });
+  state.dynamic = merged;
+  closeDynamic();
+  if (state.base) refresh(); else updateSteps();
+  toast(merged ? 'Dynamic analysis added to the report' : 'No measurements to add');
+}
+
+function clearDynamic() {
+  if (!confirm('Remove the dynamic analysis from this session?')) return;
+  state.dynamic = null;
+  if (state.base) refresh(); else updateSteps();
+}
+
+function refreshDynSummary() {
+  const d = state.dynamic, D = dynValues();
+  if (!d) { $('dynSummary').innerHTML = '<div class="section-title">Measured</div><div style="font-size:13px;color:var(--muted)">No dynamic data yet.</div>'; return; }
+  const date = d.date ? new Date(d.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  $('dynSummary').innerHTML = `<div class="section-title">Measured <span class="opt">${esc(date)}</span></div>` +
+    Object.entries(DYN_METRICS).filter(([k]) => D[k] != null).map(([k, def]) =>
+      `<div class="row"><span>${def.label}${d.manual && d.manual[k] != null ? '<span class="tag">manual</span>' : ''}</span><b>${Math.round(D[k])}°</b></div>`).join('') +
+    (d.cadence ? `<div class="row"><span>Cadence</span><b>${d.cadence} rpm</b></div>` : '') +
+    `<button type="button" class="btn ghost sm" style="margin-top:8px" onclick="clearDynamic()">Remove dynamic data</button>`;
+}
+
+// ── Report section ──
+function renderDynReport(f, body, r) {
+  const d = state.dynamic;
+  $('dynSection').hidden = !d;
+  if (!d) return;
+  const D = dynValues(), u = lenUnit(), tr = torsoRange(r);
+  const parts = [];
+  if (d.cycles) parts.push(`${d.cycles} pedal strokes`);
+  if (d.cadence) parts.push(`${d.cadence} rpm`);
+  parts.push(d.source === 'camera' ? 'live camera' : 'video');
+  if (d.date) parts.push(new Date(d.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }));
+  $('dynMeta').textContent = 'Measured · ' + parts.join(' · ');
+
+  const fig = (k, cap) => d.snaps[k]
+    ? `<figure class="snap"><img src="${d.snaps[k]}" alt="${cap}"><figcaption>${cap}</figcaption></figure>`
+    : `<figure class="snap"><div class="snap-empty">No frame</div><figcaption>${cap}</figcaption></figure>`;
+  $('dynSnaps').innerHTML = fig('bdc', `Bottom of stroke${D.kneeBDC != null ? ` · knee ${Math.round(D.kneeBDC)}°` : ''}`) + fig('tdc', `Top of stroke${D.kneeTDC != null ? ` · knee ${Math.round(D.kneeTDC)}°` : ''}`);
+
+  const list = [];
+  Object.entries(DYN_METRICS).forEach(([k, def]) => {
+    if (D[k] == null) return;
+    const m = { name: def.label, v: D[k], lo: def.lo, hi: def.hi, min: def.min, max: def.max, sub: def.sub, tag: d.manual && d.manual[k] != null ? 'manual' : '' };
+    if (k === 'torso') { m.lo = tr[0]; m.hi = tr[1]; m.sub = `Typical for this position: ${tr[0]}–${tr[1]}°`; }
+    if (k === 'kneeBDC' && (D[k] < 30 || D[k] > 40)) {
+      const mm = saddleDeltaForKnee(f, body, D[k]);
+      m.sub = `${mm > 0 ? 'Raise' : 'Lower'} saddle ≈ ${toDisp(Math.abs(mm))} ${u} for 35°`;
+    }
+    list.push(m);
+  });
+  $('dynAngles').innerHTML = list.map(rangeHTML).join('');
+  drawTrace(d);
+}
+
+function drawTrace(d) {
+  const box = $('dynTrace');
+  if (!d.series || d.series.length < 10) { box.hidden = true; return; }
+  box.hidden = false;
+  const W = 600, H = 170, L = 34, R = 8, T = 8, B = 24;
+  const ts = d.series.map(p => p[0]), ks = d.series.map(p => p[1]);
+  const tMax = Math.max(...ts) || 1;
+  let kMin = Math.floor((Math.min(...ks) - 5) / 10) * 10, kMax = Math.ceil((Math.max(...ks) + 5) / 10) * 10;
+  const X = t => L + t / tMax * (W - L - R), Y = k => T + (kMax - k) / (kMax - kMin) * (H - T - B);
+  const grid = [];
+  for (let k = kMin; k <= kMax; k += 20) grid.push(`<line x1="${L}" x2="${W - R}" y1="${Y(k).toFixed(1)}" y2="${Y(k).toFixed(1)}" stroke="#e3e6e0" stroke-width="1"/><text x="${L - 6}" y="${(Y(k) + 3.5).toFixed(1)}" text-anchor="end" font-size="10" fill="#6b737a">${k}°</text>`);
+  const tStep = tMax > 20 ? 5 : tMax > 8 ? 2 : 1;
+  for (let t = 0; t <= tMax + 1e-6; t += tStep) grid.push(`<text x="${X(t).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="10" fill="#6b737a">${t}s</text>`);
+  const path = d.series.map((p, i) => `${i ? 'L' : 'M'}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join('');
+  const dots = (pts, fill, label) => pts.map(p => `<circle cx="${X(p[0]).toFixed(1)}" cy="${Y(p[1]).toFixed(1)}" r="4" fill="${fill}" stroke="#14171a" stroke-width="1.5"><title>${label}: knee ${Math.round(p[1])}° (flexion ${Math.round(180 - p[1])}°) at ${p[0].toFixed(1)} s</title></circle>`).join('');
+  box.innerHTML = `<div class="trace-title">Knee angle through the pedal stroke <span>● bottom &nbsp;○ top of stroke</span></div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Knee angle over time">
+      ${grid.join('')}
+      <path d="${path}" fill="none" stroke="#3f6a0c" stroke-width="2" stroke-linejoin="round"/>
+      ${dots(d.peaks, '#c8f04a', 'Bottom')}${dots(d.valleys, '#ffffff', 'Top')}
+    </svg>`;
+}
+
+function initDynamic() {
+  $('manMetric').innerHTML = Object.entries(DYN_METRICS).filter(([, d]) => !d.auto)
+    .map(([k, d]) => `<option value="${k}">${d.label}</option>`).join('');
+  $('manMetric').addEventListener('change', manualReset);
+  $('dynFile').addEventListener('change', e => { if (e.target.files[0]) loadVideoFile(e.target.files[0]); e.target.value = ''; });
+  $('dynCanvas').addEventListener('click', manualClick);
+  $('dynDlg').addEventListener('close', stopDynamic);
+  const v = $('dynVideo');
+  v.addEventListener('timeupdate', () => { if (v.duration) $('dynScrub').value = Math.round(v.currentTime / v.duration * 1000); });
+  v.addEventListener('seeked', () => { if (v.paused) processFrame(true); });
+  v.addEventListener('ended', () => { if (dyn.source === 'camera') finishAnalysis(); });
+  v.addEventListener('play', () => $('dynPlay').innerHTML = '<svg class="i"><use href="#i-pause"/></svg>');
+  v.addEventListener('pause', () => $('dynPlay').innerHTML = '<svg class="i"><use href="#i-play"/></svg>');
+  $('dynScrub').addEventListener('input', e => { if (v.duration) { v.pause(); v.currentTime = e.target.value / 1000 * v.duration; } });
+  refreshDynSummary();
+}
+
 // ─── Wiring ───
 document.addEventListener('DOMContentLoaded', () => {
   let saved = null;
@@ -1902,6 +2731,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('sidebar').addEventListener('input', onEdit);
   // Re-sync an edited cell to its formatted value when it loses focus
   $('coordsBody').addEventListener('focusout', refresh);
+  initDynamic();
   $('importFile').addEventListener('change', e => { if (e.target.files[0]) importSession(e.target.files[0]); e.target.value = ''; });
   calculate();
 });
