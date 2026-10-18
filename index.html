@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KM FIT — Bike Fitting Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Shippori+Antique&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --border: #2a2a2a;
+    --accent: #c8f04a;
+    --accent-dim: #8aab2a;
+    --text: #e8e8e8;
+    --muted: #5a5a5a;
+    --danger: #ff4d4d;
+    --warn: #f0a020;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+  }
+
+  .logo {
+    font-family: 'Shippori Antique', serif;
+    font-size: 22px;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+  }
+
+  .logo span {
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+  }
+
+  .tab {
+    padding: 14px 20px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* LAYOUT */
+  .main {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    min-height: calc(100vh - 103px);
+  }
+
+  /* INPUT PANEL */
+  .input-panel {
+    border-right: 1px solid var(--border);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+    color: var(--text);
+    font-size: 12px;
+  }
+
+  .field label .hint {
+    font-size: 10px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .field input[type="number"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .field input[type="number"]::-webkit-inner-spin-button,
+  .field input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  .field input[type="number"]:focus {
+    border-color: var(--accent);
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* UNIT TOGGLE */
+  .unit-toggle {
+    display: flex;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    width: fit-content;
+  }
+
+  .unit-btn {
+    padding: 6px 14px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    background: none;
+    border: none;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+
+  .unit-btn.active {
+    background: var(--accent);
+    color: #0e0e0e;
+  }
+
+  /* SELECT */
+  .field select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 10px 12px;
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a5a5a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+
+  .field select:focus { border-color: var(--accent); }
+
+  .editable-card {
+    cursor: text;
+    position: relative;
+  }
+
+  .editable-card::after {
+    content: '✎';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 10px;
+    color: var(--border);
+    transition: color 0.2s;
+  }
+
+  .editable-card:hover::after { color: var(--muted); }
+
+  .value-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+  }
+
+  .fit-input {
+    background: none;
+    border: none;
+    border-bottom: 1px solid transparent;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 26px;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    width: 100%;
+    outline: none;
+    padding: 0;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .fit-input::-webkit-inner-spin-button,
+  .fit-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  .fit-input:focus {
+    border-bottom-color: var(--accent);
+  }
+
+  .editable-card.overridden {
+    background: #141a08;
+    border: 1px solid #2a3a10;
+  }
+
+  .override-tag {
+    font-size: 8px;
+    background: var(--accent);
+    color: #0e0e0e;
+    padding: 1px 5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+
+  .reset-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .reset-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 0 4px;
+    margin-top: auto;
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* OUTPUT PANEL */
+  .output-panel {
+    padding: 28px 32px;
+    display: none;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .output-panel.visible { display: flex; }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    opacity: 0.2;
+  }
+
+  /* RESULT GRID */
+  .result-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-title {
+    font-family: 'Shippori Antique', serif;
+    font-size: 18px;
+    color: var(--text);
+    letter-spacing: 0.05em;
+  }
+
+  .result-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    background: var(--accent);
+    color: #0e0e0e;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .result-card {
+    background: var(--surface);
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+
+  .result-card:hover { background: #1e1e1e; }
+
+  .result-card .label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .result-card .value {
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  .result-card .value .unit {
+    font-size: 14px;
+    color: var(--accent-dim);
+  }
+
+  .result-card .sub {
+    font-size: 10px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* SIZE RECOMMENDATION */
+  .size-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .size-big {
+    font-family: 'Shippori Antique', serif;
+    font-size: 52px;
+    color: var(--accent);
+    line-height: 1;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .size-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .size-info .name {
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  .size-info .detail {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* NOTES */
+  .notes-block {
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    padding: 16px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .notes-block .note-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .notes-block .note-item:last-child { margin-bottom: 0; }
+
+  .note-icon { color: var(--accent); flex-shrink: 0; }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 4px 0;
+  }
+
+  /* PAGE VISIBILITY */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* TRACK PAGE */
+  .track-warning {
+    background: #1a1400;
+    border: 1px solid #3a2e00;
+    border-left: 3px solid var(--warn);
+    padding: 14px 16px;
+    font-size: 11px;
+    color: #c8a030;
+    margin-bottom: 20px;
+    line-height: 1.7;
+  }
+
+  /* BIKE SILHOUETTE SVG */
+  .bike-visual {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bike-visual svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  /* ANIM */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animated { animation: fadeIn 0.3s ease forwards; }
+
+  .output-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">KM FIT <span>// bike fitting calculator</span></div>
+  <div class="unit-toggle" id="unitToggle">
+    <button class="unit-btn active" onclick="setUnit('cm')">cm</button>
+    <button class="unit-btn" onclick="setUnit('in')">in</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('road')">Road</button>
+  <button class="tab" onclick="switchTab('track')">Track / Fixed</button>
+</div>
+
+<div class="main">
+  <!-- INPUT PANEL -->
+  <div class="input-panel">
+
+    <!-- BODY MEASUREMENTS -->
+    <div>
+      <div class="section-label">Body measurements</div>
+
+      <div class="field">
+        <label>Inseam <span class="hint">floor to crotch, bare feet</span></label>
+        <input type="number" id="inseam" placeholder="82" step="0.5">
+      </div>
+
+      <div class="field">
+        <label>Torso length <span class="hint">C7 vertebra to hip socket</span></label>
+        <input type="number" id="torso" placeholder="58" step="0.5">
+      </div>
+
+      <div class="field">
+        <label>Arm length <span class="hint">shoulder to wrist</span></label>
+        <input type="number" id="arm" placeholder="62" step="0.5">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Height</label>
+          <input type="number" id="height" placeholder="178" step="0.5">
+        </div>
+        <div class="field">
+          <label>Femur length <span class="hint">optional</span></label>
+          <input type="number" id="femur" placeholder="–" step="0.5">
+        </div>
+      </div>
+    </div>
+
+    <!-- RIDER PROFILE -->
+    <div>
+      <div class="section-label">Rider profile</div>
+
+      <div class="field">
+        <label>Flexibility / riding position</label>
+        <select id="flexibility">
+          <option value="upright">Upright (casual/comfort)</option>
+          <option value="moderate" selected>Moderate (endurance)</option>
+          <option value="aggressive">Aggressive (race/aero)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Cleat type</label>
+        <select id="cleat">
+          <option value="road">Road (Look/SPD-SL — 3-bolt)</option>
+          <option value="spd">SPD / MTB (2-bolt)</option>
+          <option value="track">NJS / track (toe clips)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- CURRENT BIKE (optional) -->
+    <div>
+      <div class="section-label">Current bike <span style="color:var(--muted);font-size:9px">(optional)</span></div>
+      <div class="field-row">
+        <div class="field">
+          <label>Stack</label>
+          <input type="number" id="curStack" placeholder="–" step="1">
+        </div>
+        <div class="field">
+          <label>Reach</label>
+          <input type="number" id="curReach" placeholder="–" step="1">
+        </div>
+      </div>
+    </div>
+
+    <div class="live-indicator" id="liveIndicator">
+      <span class="live-dot"></span> LIVE — auto-updating
+    </div>
+  </div>
+
+  <!-- OUTPUT PANEL -->
+  <div class="output-panel" id="outputPanel">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="output-empty" id="emptyState">
+    <div class="empty-icon">⬡</div>
+    <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase">Enter measurements to calculate</div>
+  </div>
+</div>
+
+<script>
+let unit = 'cm';
+let activeTab = 'road';
+
+function setUnit(u) {
+  unit = u;
+  document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.unit-btn').forEach(b => {
+    if (b.textContent === u) b.classList.add('active');
+  });
+  calculate();
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.textContent.toLowerCase().startsWith(tab)) t.classList.add('active');
+  });
+  calculate();
+}
+
+function getVal(id) {
+  const v = parseFloat(document.getElementById(id).value);
+  if (isNaN(v)) return null;
+  // convert to cm if inches
+  return unit === 'in' ? v * 2.54 : v;
+}
+
+function clearOutput() {
+  document.getElementById('outputPanel').classList.remove('visible');
+  document.getElementById('outputPanel').innerHTML = '';
+  document.getElementById('emptyState').style.display = 'flex';
+}
+
+function fmt(val, decimals = 0) {
+  if (val === null || isNaN(val)) return '—';
+  const v = unit === 'in' ? val / 2.54 : val;
+  return v.toFixed(decimals);
+}
+
+function unitLabel() { return unit === 'in' ? 'in' : 'mm'; }
+function fmtMm(val) {
+  // val is in cm, output in mm or inches
+  if (val === null) return '—';
+  return unit === 'in' ? (val / 2.54).toFixed(1) : Math.round(val * 10).toString();
+}
+
+function calculate() {
+  const inseam = getVal('inseam');
+  const torso  = getVal('torso');
+  const arm    = getVal('arm');
+  const height = getVal('height');
+  const femur  = getVal('femur');
+  const flex   = document.getElementById('flexibility').value;
+  const cleat  = document.getElementById('cleat').value;
+  const curStack = getVal('curStack');
+  const curReach = getVal('curReach');
+
+  if (!inseam || !torso || !arm) {
+    clearOutput();
+    return;
+  }
+
+  const results = activeTab === 'road'
+    ? calcRoad(inseam, torso, arm, height, femur, flex, cleat, curStack, curReach)
+    : calcTrack(inseam, torso, arm, height, femur, flex, cleat);
+
+  renderOutput(results);
+}
+
+// ─── Fit overrides (bidirectional editing) ───
+window._fitOverrides = {};
+
+function onFitEdit(key, rawVal) {
+  const val = parseFloat(rawVal);
+  if (isNaN(val)) return;
+
+  const base = window._baseFit;
+  if (!base) return;
+
+  // Convert input to cm for internal calc (inputs are in mm or inches depending on unit)
+  const toCm = v => unit === 'in' ? v * 2.54 : v / 10;
+
+  if (key === 'crankLength') {
+    // crank change → adjust saddle height
+    // delta in mm: new - old
+    const oldCrank = window._fitOverrides.crankLength !== undefined
+      ? window._fitOverrides.crankLength
+      : base.crankLength;
+    const delta = val - oldCrank; // mm
+    window._fitOverrides.crankLength = val;
+
+    // saddle height adjustment: same delta in mm (leg extension changes 1:1)
+    const currentSH = window._fitOverrides.saddleHeight !== undefined
+      ? (unit === 'in' ? window._fitOverrides.saddleHeight / 0.3937 : window._fitOverrides.saddleHeight)
+      : Math.round(base.saddleHeight * 10); // mm
+    const newSH = currentSH + delta; // mm
+    window._fitOverrides.saddleHeight = unit === 'in' ? +(newSH * 0.03937).toFixed(1) : Math.round(newSH);
+
+    // also adjust frame stack by same delta
+    const currentFS = window._fitOverrides.frameStack !== undefined
+      ? (unit === 'in' ? window._fitOverrides.frameStack / 0.3937 : window._fitOverrides.frameStack)
+      : Math.round(base.frameStack * 10);
+    window._fitOverrides.frameStack = unit === 'in' ? +((currentFS + delta) * 0.03937).toFixed(1) : Math.round(currentFS + delta);
+
+  } else {
+    window._fitOverrides[key] = val;
+
+    // saddle height manually edited → update frame stack
+    if (key === 'saddleHeight') {
+      const drop = window._fitOverrides.saddleToDrop !== undefined
+        ? (unit === 'in' ? window._fitOverrides.saddleToDrop / 0.3937 : window._fitOverrides.saddleToDrop)
+        : Math.round(base.saddleToDrop * 10);
+      const sh = unit === 'in' ? val / 0.3937 : val; // to mm
+      const seatpost = 100; // mm
+      const newStack = sh - seatpost - drop;
+      window._fitOverrides.frameStack = unit === 'in' ? +(newStack * 0.03937).toFixed(1) : Math.round(newStack);
+    }
+
+    // bar drop edited → update frame stack
+    if (key === 'saddleToDrop') {
+      const sh = window._fitOverrides.saddleHeight !== undefined
+        ? (unit === 'in' ? window._fitOverrides.saddleHeight / 0.3937 : window._fitOverrides.saddleHeight)
+        : Math.round(base.saddleHeight * 10);
+      const drop = unit === 'in' ? val / 0.3937 : val;
+      const newStack = sh - 100 - drop;
+      window._fitOverrides.frameStack = unit === 'in' ? +(newStack * 0.03937).toFixed(1) : Math.round(newStack);
+    }
+
+    // reach to bar edited → update frame reach
+    if (key === 'reachToBar') {
+      const reachMm = unit === 'in' ? val / 0.3937 : val;
+      const frameReachMm = reachMm - 80; // ~8cm stem contribution
+      window._fitOverrides.frameReach = unit === 'in' ? +(frameReachMm * 0.03937).toFixed(1) : Math.round(frameReachMm);
+    }
+  }
+
+  // Re-render output with overrides applied (no full recalc — preserve base)
+  renderOutput(base);
+}
+
+function resetOverrides() {
+  window._fitOverrides = {};
+  calculate();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const bodyIds = ['inseam','torso','arm','height','femur'];
+  bodyIds.forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      window._fitOverrides = {};
+      calculate();
+    });
+  });
+  ['flexibility','cleat'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      window._fitOverrides = {};
+      calculate();
+    });
+  });
+  ['curStack','curReach'].forEach(id => {
+    document.getElementById(id).addEventListener('input', calculate);
+  });
+});
+
+function calcRoad(inseam, torso, arm, height, femur, flex, cleat, curStack, curReach) {
+  // ─── Saddle height ───
+  // LeMond method: inseam × 0.883 (to BB center)
+  // Adjust for cleat: road +3mm, spd +0mm
+  let cleatAdj = cleat === 'road' ? 0.3 : 0; // cm
+  let saddleHeight = inseam * 0.883 + cleatAdj;
+
+  // ─── Saddle setback ───
+  // Typically 4–7cm behind BB; use femur if available
+  let setback = femur ? (femur * 0.18) : 5.0;
+  setback = Math.max(3.5, Math.min(8.0, setback));
+
+  // ─── Saddle-to-bar drop & reach ───
+  // Reach coefficient varies by flexibility
+  const reachCoeff = { upright: 0.44, moderate: 0.47, aggressive: 0.50 };
+  const dropCoeff  = { upright: -2,   moderate: 2,    aggressive: 6  }; // cm, saddle above bar
+
+  let reachToBar = (torso + arm) * reachCoeff[flex];
+  let saddleToDrop = dropCoeff[flex];
+
+  // ─── Frame stack / reach ───
+  // Approx: stack = saddleHeight + drop - seatpost (10cm typical)
+  const seatpost = 10;
+  let frameStack = saddleHeight - seatpost - saddleToDrop;
+  let frameReach = reachToBar - 8; // ~8cm stem+bar contribution
+
+  // ─── Frame size (traditional c-t) ───
+  let frameSizeCT = inseam * 0.65;
+
+  // ─── Crank length ───
+  let crankLength;
+  if (inseam < 75)       crankLength = 165;
+  else if (inseam < 80)  crankLength = 170;
+  else if (inseam < 86)  crankLength = 172.5;
+  else if (inseam < 92)  crankLength = 175;
+  else                   crankLength = 177.5;
+
+  // ─── Q-factor / cleat position ───
+  // Cleat fore-aft: ball of foot over pedal axle
+  const cleatNote = cleat === 'road'
+    ? 'Center of ball of foot over pedal axle. 0–5mm float recommended.'
+    : cleat === 'spd'
+      ? 'Ball of foot slightly behind axle center. More float for knees.'
+      : 'Toe clip: toe cap 5–8mm past pedal center. Strap firm but not tight.';
+
+  // ─── Size recommendation ───
+  let sizeName, sizeDetail;
+  const sc = frameSizeCT;
+  if (sc < 49)      { sizeName = 'XS'; sizeDetail = '47–49 cm (c-t)'; }
+  else if (sc < 52) { sizeName = 'S';  sizeDetail = '50–52 cm (c-t)'; }
+  else if (sc < 55) { sizeName = 'M';  sizeDetail = '52–54 cm (c-t)'; }
+  else if (sc < 58) { sizeName = 'L';  sizeDetail = '55–57 cm (c-t)'; }
+  else if (sc < 61) { sizeName = 'XL'; sizeDetail = '58–60 cm (c-t)'; }
+  else              { sizeName = 'XXL';sizeDetail = '61+ cm (c-t)'; }
+
+  // ─── Stack/reach delta ───
+  let stackDelta = null, reachDelta = null;
+  if (curStack) stackDelta = frameStack * 10 - curStack;
+  if (curReach) reachDelta = frameReach * 10 - curReach;
+
+  const flexLabel = { upright: 'Upright / Endurance', moderate: 'Moderate / All-road', aggressive: 'Aggressive / Race' };
+
+  return {
+    tab: 'road',
+    sizeName, sizeDetail,
+    frameSizeCT,
+    saddleHeight, setback, saddleToDrop,
+    frameStack, frameReach,
+    crankLength,
+    reachToBar,
+    stackDelta, reachDelta,
+    cleatNote,
+    flexLabel: flexLabel[flex],
+    notes: buildRoadNotes(inseam, torso, arm, height, flex)
+  };
+}
+
+function calcTrack(inseam, torso, arm, height, femur, flex, cleat) {
+  // NJS / track geometry — fixed, no brakes, aggressive
+  let saddleHeight = inseam * 0.883; // track: no cleat stack adjustment (clips)
+  // Track riders often sit 5–10mm higher — power position
+  saddleHeight += 0.5;
+
+  let setback = femur ? femur * 0.16 : 3.5;
+  setback = Math.max(2.0, Math.min(6.0, setback));
+
+  // Track: aggressive, short reach, slammed
+  let reachToBar = (torso + arm) * 0.46;
+  let saddleToDrop = 5; // 5cm drop — aggressive track position
+
+  let frameStack = saddleHeight - 10 - saddleToDrop;
+  let frameReach = reachToBar - 9; // Nitto-style bars shorter reach
+
+  // Track frame: seat tube in cm (c-c)
+  let frameSizeCC = inseam * 0.635;
+
+  // Crank: NJS standard — track cranks
+  let crankLength;
+  if (inseam < 78)       crankLength = 165;
+  else if (inseam < 83)  crankLength = 167.5;
+  else if (inseam < 88)  crankLength = 170;
+  else                   crankLength = 172.5;
+
+  // Gear ratio recommendation (keirin / training)
+  const gearRatio = 2.76; // common: 48/17, 46/17 etc.
+
+  let sizeName, sizeDetail;
+  const sc = frameSizeCC;
+  if (sc < 49)      { sizeName = '48'; sizeDetail = '47–49 cm (c-c), NJS small'; }
+  else if (sc < 52) { sizeName = '51'; sizeDetail = '50–52 cm (c-c)'; }
+  else if (sc < 55) { sizeName = '54'; sizeDetail = '52–55 cm (c-c)'; }
+  else if (sc < 58) { sizeName = '57'; sizeDetail = '55–58 cm (c-c)'; }
+  else              { sizeName = '60'; sizeDetail = '58+ cm (c-c)'; }
+
+  return {
+    tab: 'track',
+    sizeName, sizeDetail,
+    frameSizeCC,
+    saddleHeight, setback, saddleToDrop,
+    frameStack, frameReach,
+    crankLength,
+    reachToBar,
+    notes: buildTrackNotes(inseam, torso)
+  };
+}
+
+function buildRoadNotes(inseam, torso, arm, height, flex) {
+  const notes = [];
+  if (torso / arm > 1.05) notes.push({ icon: '↕', text: 'Long torso relative to arms — consider a shorter stem or flipped bar.' });
+  if (arm / torso > 1.05) notes.push({ icon: '↔', text: 'Long arms relative to torso — consider a longer stem or more reach.' });
+  if (flex === 'aggressive' && inseam < 80) notes.push({ icon: '⚠', text: 'Aggressive position + short inseam — prioritize core mobility before slamming the stem.' });
+  notes.push({ icon: '→', text: 'Saddle height is a starting point. Fine-tune in 2mm increments over 2–3 weeks.' });
+  if (!height) notes.push({ icon: 'i', text: 'Add height for more accurate frame sizing.' });
+  return notes;
+}
+
+function buildTrackNotes(inseam, torso) {
+  return [
+    { icon: '⬡', text: 'NJS frames are measured center-to-center. JPN sizing differs from EU builders — always verify actual stack/reach.' },
+    { icon: '→', text: 'Keirin/velodrome position: saddle high, bar slammed. Street fixed: raise bar 2–4cm for comfort.' },
+    { icon: '⚠', text: 'Toe clip fit critical — shell should clear toe by 3–5mm. NJS Large fits most road shoes 42–44.' },
+    { icon: 'i', text: 'Crank length recommendation uses shorter track cranks for clearance and cadence.' },
+  ];
+}
+
+function renderOutput(r) {
+  const panel = document.getElementById('outputPanel');
+  document.getElementById('emptyState').style.display = 'none';
+  panel.innerHTML = '';
+  panel.classList.add('visible');
+
+  const u = unitLabel();
+  const isTrack = r.tab === 'track';
+
+  let html = `
+  <div class="animated">
+    <div class="result-header">
+      <div class="result-title">${isTrack ? 'Track / Fixed Fit' : 'Road Fit'}</div>
+      <div class="result-badge">${isTrack ? 'NJS / Fixed' : (r.flexLabel || 'Road')}</div>
+    </div>
+  </div>`;
+
+  // SIZE
+  const adjStack = (window._fitOverrides && window._fitOverrides.frameStack !== undefined)
+    ? window._fitOverrides.frameStack
+    : (unit === 'in' ? +(r.frameStack/2.54).toFixed(1) : Math.round(r.frameStack*10));
+  const adjStackLabel = (window._fitOverrides && window._fitOverrides.frameStack !== undefined) ? ' <span style="color:var(--warn);font-size:9px">adjusted</span>' : '';
+
+  html += `
+  <div class="animated" style="animation-delay:0.05s">
+    <div class="section-label">Recommended frame size</div>
+    <div class="size-block">
+      <div class="size-big">${r.sizeName}</div>
+      <div class="size-info">
+        <div class="name">${r.sizeDetail}</div>
+        <div class="detail">
+          Seat tube: ${fmtMm(isTrack ? r.frameSizeCC : r.frameSizeCT)} ${u}
+          ${isTrack ? '(c-c)' : '(c-t)'}<br>
+          Stack target: ${adjStack} ${u}${adjStackLabel} &nbsp;|&nbsp;
+          Reach target: ${fmtMm(r.frameReach)} ${u}
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // KEY NUMBERS — editable cards
+  // Store base values for override tracking
+  window._baseFit = r;
+
+  function editCard(key, labelText, rawVal, unitStr, subText, isOverridden) {
+    const displayVal = rawVal !== null ? rawVal : '—';
+    const overrideClass = isOverridden ? ' overridden' : '';
+    return `
+      <div class="result-card editable-card${overrideClass}" data-key="${key}">
+        <div class="label">${labelText}${isOverridden ? ' <span class="override-tag">edited</span>' : ''}</div>
+        <div class="value-wrap">
+          <input class="fit-input" data-key="${key}" type="number" value="${displayVal}" step="${key === 'crankLength' ? 2.5 : (unit === 'in' ? 0.1 : 1)}" oninput="onFitEdit('${key}', this.value)">
+          <span class="unit"> ${unitStr}</span>
+        </div>
+        <div class="sub">${subText}</div>
+      </div>`;
+  }
+
+  const ov = window._fitOverrides || {};
+
+  const saddleHeightVal = ov.saddleHeight !== undefined ? ov.saddleHeight : (unit === 'in' ? +(r.saddleHeight/2.54).toFixed(1) : Math.round(r.saddleHeight*10));
+  const setbackVal      = ov.setback      !== undefined ? ov.setback      : (unit === 'in' ? +(r.setback/2.54).toFixed(1)      : Math.round(r.setback*10));
+  const dropVal         = ov.saddleToDrop !== undefined ? ov.saddleToDrop : (unit === 'in' ? +(r.saddleToDrop/2.54).toFixed(1) : Math.round(r.saddleToDrop*10));
+  const reachVal        = ov.reachToBar   !== undefined ? ov.reachToBar   : (unit === 'in' ? +(r.reachToBar/2.54).toFixed(1)   : Math.round(r.reachToBar*10));
+  const crankVal        = ov.crankLength  !== undefined ? ov.crankLength  : r.crankLength;
+
+  html += `
+  <div class="animated" style="animation-delay:0.1s">
+    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
+      Key fit numbers
+      <button class="reset-btn" onclick="resetOverrides()" title="Reset all edits">↺ reset</button>
+    </div>
+    <div class="results-grid">
+      ${editCard('saddleHeight', 'Saddle height',  saddleHeightVal, u,    'Edit → stack target updates',  ov.saddleHeight !== undefined)}
+      ${editCard('setback',      'Saddle setback', setbackVal,      u,    'Rail position, no cascade',    ov.setback !== undefined)}
+      ${editCard('saddleToDrop', 'Bar drop',       dropVal,         u,    'Edit → stack target updates',  ov.saddleToDrop !== undefined)}
+      ${editCard('reachToBar',   'Reach to bar',   reachVal,        u,    'Edit → reach target updates',  ov.reachToBar !== undefined)}
+      ${editCard('crankLength',  'Crank length',   crankVal,        'mm', 'Edit → saddle height updates', ov.crankLength !== undefined)}
+    </div>
+  </div>`;
+
+  // STACK/REACH DELTA
+  if (r.stackDelta !== null || r.reachDelta !== null) {
+    const sdCol = r.stackDelta > 5 ? 'var(--accent)' : r.stackDelta < -5 ? 'var(--danger)' : 'var(--warn)';
+    const rdCol = r.reachDelta > 5 ? 'var(--accent)' : r.reachDelta < -5 ? 'var(--danger)' : 'var(--warn)';
+    html += `
+    <div class="animated" style="animation-delay:0.15s">
+      <div class="section-label">vs. current bike</div>
+      <div class="results-grid">
+        ${r.stackDelta !== null ? `
+        <div class="result-card">
+          <div class="label">Stack delta</div>
+          <div class="value" style="color:${sdCol}">${r.stackDelta > 0 ? '+' : ''}${Math.round(r.stackDelta)}<span class="unit"> mm</span></div>
+          <div class="sub">${r.stackDelta > 8 ? 'Target is taller — raise bar / longer head tube' : r.stackDelta < -8 ? 'Target is lower — slam stem / shorter spacers' : 'Within range'}</div>
+        </div>` : ''}
+        ${r.reachDelta !== null ? `
+        <div class="result-card">
+          <div class="label">Reach delta</div>
+          <div class="value" style="color:${rdCol}">${r.reachDelta > 0 ? '+' : ''}${Math.round(r.reachDelta)}<span class="unit"> mm</span></div>
+          <div class="sub">${r.reachDelta > 8 ? 'Target longer — longer stem or more reach' : r.reachDelta < -8 ? 'Target shorter — shorter stem' : 'Within range'}</div>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  // CLEAT NOTE (road only)
+  if (!isTrack && r.cleatNote) {
+    html += `
+    <div class="animated" style="animation-delay:0.2s">
+      <div class="section-label">Cleat / foot position</div>
+      <div class="notes-block">
+        <div class="note-item"><span class="note-icon">⬡</span><span>${r.cleatNote}</span></div>
+      </div>
+    </div>`;
+  }
+
+  // NOTES
+  html += `
+  <div class="animated" style="animation-delay:0.22s">
+    <div class="section-label">Notes & adjustments</div>
+    <div class="notes-block">
+      ${r.notes.map(n => `<div class="note-item"><span class="note-icon">${n.icon}</span><span>${n.text}</span></div>`).join('')}
+    </div>
+  </div>`;
+
+  // DISCLAIMER
+  html += `
+  <div style="font-size:10px;color:var(--muted);margin-top:auto;padding-top:12px;border-top:1px solid var(--border);animation:fadeIn 0.4s 0.25s both">
+    Calculated values are starting points based on LeMond / Hamley methods. Always validate on bike with a qualified fitter.
+  </div>`;
+
+  panel.innerHTML = html;
+}
+</script>
+</body>
+</html>
