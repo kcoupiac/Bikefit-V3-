@@ -839,7 +839,7 @@
               <tbody id="coordsBody"></tbody>
             </table>
             <div class="table-foot">
-              <span>Saddle height: BB centre to saddle top along the seat tube. Setback &amp; reach from saddle nose. Handlebar X/Y from BB centre.</span>
+              <span>Saddle height: BB centre to saddle top along the seat tube. Setback &amp; reach from saddle nose. Saddle centre is taken 120 mm behind the nose. X/Y from BB centre.</span>
               <button type="button" class="btn sm no-print" id="resetBtn" onclick="resetOverrides()" disabled><svg class="i"><use href="#i-reset"/></svg>Reset edits</button>
             </div>
           </section>
@@ -1525,6 +1525,8 @@ const ROWS = [
   { grp: 'Saddle' },
   { key: 'saddleHeight', label: 'Saddle height', note: 'BB centre to saddle top', kind: 'len', edit: true, before: 'curSaddleHeight' },
   { key: 'setback',      label: 'Saddle setback', note: 'Saddle nose behind BB', kind: 'len', edit: true, before: 'curSetback' },
+  { key: 'saddleX',      label: 'Saddle X', note: 'Saddle centre behind BB centre', kind: 'len' },
+  { key: 'saddleY',      label: 'Saddle Y', note: 'Saddle centre above BB centre', kind: 'len' },
   { grp: 'Cockpit' },
   { key: 'reachToBar',   label: 'Saddle to handlebar', note: 'Saddle nose to bar centre', kind: 'len', edit: true, before: 'curReachToBar' },
   { key: 'saddleToDrop', label: 'Saddle to bar drop', note: 'Saddle top above bar top', kind: 'len', edit: true, before: 'curDrop' },
@@ -1635,17 +1637,19 @@ function refresh() {
   // 03 Coordinates
   const pre = id => readField(id);
   const preSetback = pre('curSetback'), preReach = pre('curReachToBar'), preSH = pre('curSaddleHeight'), preDrop = pre('curDrop');
-  let preBar = null;
-  if (preSH && preSetback != null && preReach && preDrop != null) {
-    preBar = contactPoints({ saddleHeight: preSH, setback: preSetback, reachToBar: preReach, saddleToDrop: preDrop }).bar;
+  let preBar = null, preSit = null;
+  if (preSH && preSetback != null) {
+    const cp = contactPoints({ saddleHeight: preSH, setback: preSetback, reachToBar: preReach || 0, saddleToDrop: preDrop || 0 });
+    preSit = cp.sit;
+    if (preReach && preDrop != null) preBar = cp.bar;
   }
   const rec = {
-    saddleHeight: f.saddleHeight, setback: f.setback, reachToBar: f.reachToBar, saddleToDrop: f.saddleToDrop,
+    saddleHeight: f.saddleHeight, setback: f.setback, saddleX: -K.sit.x, saddleY: K.sit.y, reachToBar: f.reachToBar, saddleToDrop: f.saddleToDrop,
     barX: K.bar.x, barY: K.bar.y, barWidth: eq.barWidth ?? null, crankLength: f.crankLength,
     frameStack: f.frameStack, frameReach: f.frameReach, saddleWidth: eq.saddleWidth ?? null
   };
   const before = {
-    saddleHeight: preSH, setback: preSetback, reachToBar: preReach, saddleToDrop: preDrop,
+    saddleHeight: preSH, setback: preSetback, saddleX: preSit ? -preSit.x : null, saddleY: preSit ? preSit.y : null, reachToBar: preReach, saddleToDrop: preDrop,
     barX: preBar ? preBar.x : null, barY: preBar ? preBar.y : null,
     barWidth: pre('curBarWidth'), crankLength: pre('curCrank'),
     frameStack: pre('curStack'), frameReach: pre('curReach'), saddleWidth: pre('curSaddleWidth')
